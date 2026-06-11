@@ -23,7 +23,7 @@ btnRules.addEventListener('click', function(){ ovRules.classList.add('show') });
 btnRulesClose.addEventListener('click', function(){ ovRules.classList.remove('show') });
 
 btnReset.addEventListener('click', function(){
-  if(S.phase !== 'betting') return;
+  if(S.phase !== 'betting' || busy) return;
   S.bet = 0; S.bankroll = 1000;
   S.stats = { hands: 0, wins: 0, losses: 0, pushes: 0, bjs: 0, net: 0, bigWin: 0, streak: 0, bestStreak: 0, loans: 0 };
   saveBank(); saveStats();

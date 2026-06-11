@@ -176,5 +176,5 @@ function renderStatsPanel(){
 }
 
 function closeOverlays(){
-  [ovStats, ovRules, ovLoan].forEach(function(o){ o.classList.remove('show') });
+  [ovStats, ovRules].forEach(function(o){ o.classList.remove('show') });
 }

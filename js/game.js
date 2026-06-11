@@ -5,6 +5,7 @@ async function sweepTable(){
   if(cards.length){
     cards.forEach(function(el, i){
       el.style.transitionDelay = (i * 30) + 'ms';
+      el.classList.remove('dbl');
       el.classList.add('discard');
     });
     SFX.flip();
@@ -292,10 +293,12 @@ async function settleRound(){
   const allPush = res.every(function(r){ return r.cls === 'push' });
   if(bjHit){ showBanner('Blackjack!', 'bj'); SFX.big(); confetti(190, true) }
   else if(net > 0){ showBanner('You win +' + fmt(net).slice(1), 'win'); SFX.win(); if(net >= 100) confetti(120, false) }
-  else if(net < 0 && !allPush){
+  else if(net < 0){
+    const allSurr = S.hands.every(function(h){ return h.surrendered });
     const allBust = S.hands.every(function(h){ return h.busted });
-    showBanner((allBust ? 'Bust ' : 'Dealer wins ') + '−' + fmt(net).slice(2), 'lose');
-    SFX.lose();
+    if(allSurr){ showBanner('Surrendered −' + fmt(net).slice(2), 'push'); SFX.lose() }
+    else if(allPush){ showBanner('Push — insurance lost', 'push'); SFX.push() }
+    else{ showBanner((allBust ? 'Bust ' : 'Dealer wins ') + '−' + fmt(net).slice(2), 'lose'); SFX.lose() }
   }
   else{ showBanner('Push', 'push'); SFX.push() }
   payoutFx(net);

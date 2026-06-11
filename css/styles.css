@@ -103,8 +103,8 @@ body{margin:0;background:#171008;display:flex;justify-content:center;align-items
 .toastN{position:absolute;top:10px;left:50%;transform:translate(-50%,-8px);background:rgba(12,9,5,.93);color:#f0e3bd;border:1px solid rgba(212,175,55,.5);border-radius:999px;padding:7px 16px;font:600 12.5px var(--sans);opacity:0;transition:.3s;z-index:66;pointer-events:none;white-space:nowrap;max-width:92%}
 .toastN.show{opacity:1;transform:translate(-50%,0)}
 #fxCanvas{position:absolute;inset:0;z-index:60;pointer-events:none}
-.overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(8,6,3,.66);opacity:0;pointer-events:none;transition:.25s;z-index:70}
-.overlay.show{opacity:1;pointer-events:auto}
+.overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(8,6,3,.66);opacity:0;visibility:hidden;pointer-events:none;transition:opacity .25s,visibility .25s;z-index:70}
+.overlay.show{opacity:1;visibility:visible;pointer-events:auto}
 .panel{background:#191410;border:1px solid rgba(212,175,55,.55);border-radius:14px;padding:20px 24px;max-width:430px;width:88%;max-height:84%;overflow:auto;box-shadow:0 20px 60px rgba(0,0,0,.7)}
 .panel h3{margin:0 0 10px;font:700 19px var(--serif);color:var(--gold-l);letter-spacing:.06em}
 .panel p{margin:0 0 14px;font:400 13.5px/1.55 var(--sans);color:#d9cba2}

@@ -33,10 +33,9 @@ function flyChip(fromEl, toEl, d){
   el.style.left = (fr.left - ar.left + fr.width / 2 - 23) + 'px';
   el.style.top = (fr.top - ar.top + fr.height / 2 - 23) + 'px';
   app.appendChild(el);
-  requestAnimationFrame(function(){
-    el.style.transform = 'translate(' + ((tr.left + tr.width / 2) - (fr.left + fr.width / 2)) + 'px,' + ((tr.top + tr.height / 2) - (fr.top + fr.height / 2)) + 'px) rotate(520deg)';
-    el.style.opacity = '.92';
-  });
+  el.getBoundingClientRect();
+  el.style.transform = 'translate(' + ((tr.left + tr.width / 2) - (fr.left + fr.width / 2)) + 'px,' + ((tr.top + tr.height / 2) - (fr.top + fr.height / 2)) + 'px) rotate(520deg)';
+  el.style.opacity = '.92';
   setTimeout(function(){ el.remove() }, 620);
 }
 
