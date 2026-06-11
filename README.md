@@ -1,42 +1,66 @@
 # Royal Blackjack
 
-A casino-style blackjack game in plain HTML/CSS/JavaScript — no dependencies, no build step, no server required.
+A full casino blackjack experience in plain HTML/CSS/JavaScript — no dependencies, no build step, no server required. Play it, learn perfect strategy from it, practice card counting on it, or take on the roguelike run mode.
 
 ## Play
 
-Open `index.html` in any modern browser.
+Open `index.html` in any modern browser, or install it as an app (PWA — works offline).
+
+## The game
+
+- Full table rules: double down, split (double after split), late surrender, insurance with dealer peek
+- **Side bets** with real casino paytables: Perfect Pairs (to 25:1), 21+3 (to 100:1), Lucky Lucky (to 200:1), Buster (to 250:1)
+- **Configurable table**: 1–8 decks, dealer hits/stands soft 17, 3:2 vs 6:5 blackjack, double-after-split, surrender, US peek vs European no-hole-card — with a live house-edge estimate
+- Animated chip flights, 3D card flips, win streak "heater", hit-stop on blackjack, confetti, synthesized sound (Web Audio, zero asset files)
+- Unlockable card backs and table felts earned through 26 achievements
+- Bankroll persists between sessions; the house extends credit when you bust (it keeps count)
+
+## Modes
+
+- **Daily challenge** — one attempt per day, everyone worldwide plays the *same shuffle* (date-seeded). 15 hands, $1,000, final bankroll is your score; share an emoji result card
+- **Run mode** — roguelike: start with $300, survive 8 escalating bankroll targets, pick a table-bending perk after each round (blackjack pays 2:1, free doubles, five-card Charlie…)
+- **Free play** — the classic table, with your career stats, streaks, and bankroll graph
+
+## The trainer
+
+- **Coach mode** — every move graded live against basic strategy for the *current* rules, with corrections
+- **Strategy chart** — generated from the engine for your exact rule set, your current hand highlighted
+- **Accuracy heatmap** — see exactly which chart cells leak money
+- **Card counting** — live Hi-Lo running/true count, pop-up count quizzes, 20-card speed drills, and Illustrious-18 count deviations integrated into the coach
+- **Simulator** — a headless engine replays up to 500k rounds of perfect basic strategy to measure the real house edge for your rules
+
+## Provably fair
+
+Every shoe is shuffled from a random seed whose SHA-256 hash is committed while the shoe is live; the seed is revealed when the shoe retires, so any shuffle can be independently re-derived and verified (Menu → Fairness).
+
+## Keyboard
+
+`H` hit · `S` stand · `D` double · `P` split · `U` surrender · `Enter` deal · `R` rebet · `C` clear · `1–4` chips · `B` hint · `K` coach · `M` sound · `Esc` close panels
 
 ## Project structure
 
 ```
-index.html        markup shell
-css/styles.css    all styling (table, cards, chips, animations)
-js/utils.js       small helpers (format, storage, sleep)
-js/dom.js         element references
-js/audio.js       synthesized sound effects (Web Audio)
-js/cards.js       deck constants and card DOM construction
-js/state.js       game state, shoe, hand math, persistence
-js/render.js      all DOM rendering and button states
-js/fx.js          card/chip flight animations, confetti
-js/strategy.js    basic-strategy hint engine
-js/game.js        round flow: deal, actions, dealer, settlement
-js/main.js        event wiring and init
+index.html         markup shell · manifest.json · sw.js · icon.svg (PWA)
+css/styles.css     all styling
+js/utils.js        helpers, seeded RNG (xmur3 + mulberry32)
+js/dom.js          element references
+js/audio.js        synthesized sound effects
+js/cards.js        deck constants, card DOM builder
+js/state.js        game state, shoe, hand math, persistence
+js/sidebets.js     side-bet paytables and resolution
+js/render.js       DOM rendering, buttons, charts
+js/fx.js           card/chip animations, confetti, hit-stop
+js/strategy.js     rules-aware basic-strategy engine + house edge
+js/coach.js        decision grading and feedback
+js/game.js         round flow: deal → actions → dealer → settle
+js/daily.js        seeded daily challenge + share cards
+js/achieve.js      achievements and cosmetic unlocks
+js/trainer.js      strategy chart, heatmap, count quizzes, drills
+js/sim.js          headless Monte Carlo simulator
+js/fair.js         provably-fair commit/reveal
+js/run.js          roguelike run mode and perks
+js/main.js         event wiring and init
 ```
-
-## Features
-
-- Chip-based betting ($5 / $25 / $100 / $500) with animated chip flights and payouts
-- Full table rules: double down, split (incl. double after split), late surrender, insurance with dealer peek
-- Blackjack pays 3:2 · dealer stands on all 17s · six-deck shoe with reshuffle
-- Flashy card dealing and 3D flip animations, win banners, confetti on blackjack
-- Synthesized sound effects (Web Audio, no asset files) with mute toggle
-- Basic-strategy hint button ("what would the book do?")
-- Session stats: win rate, streaks, biggest win, net P/L — plus a live Hi-Lo running/true count for aspiring card counters
-- Bankroll persists between sessions; the house extends you a $1,000 credit line when you bust out (it keeps count)
-
-## Keyboard shortcuts
-
-`H` hit · `S` stand · `D` double · `P` split · `U` surrender · `Enter` deal · `R` rebet · `C` clear bet · `1–4` chips · `B` hint · `M` sound
 
 ## License
 

@@ -45,7 +45,11 @@ const SFX = {
   deal: function(){ noiseBurst(.09, .3, 1700) },
   flip: function(){ noiseBurst(.06, .2, 2600); tone(880, .05, 'triangle', .05, .02) },
   chip: function(){ tone(2700 + Math.random() * 600, .035, 'square', .06); tone(2000, .045, 'square', .05, .028) },
-  win: function(){ [523, 659, 784, 1047].forEach(function(f, i){ tone(f, .22, 'triangle', .12, i * .09) }) },
+  win: function(streak){
+    const m = Math.pow(2, Math.min(streak || 0, 8) / 12);
+    [523, 659, 784, 1047].forEach(function(f, i){ tone(f * m, .22, 'triangle', .12, i * .09) });
+    if((streak || 0) >= 3) tone(1319 * m, .3, 'triangle', .1, .36);
+  },
   big: function(){
     [523, 659, 784, 1047, 1319, 1568].forEach(function(f, i){ tone(f, .3, 'triangle', .13, i * .1) });
     [262, 330, 392].forEach(function(f, i){ tone(f, .85, 'sine', .06, .32 + i * .02) });

@@ -4,6 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Royal Blackjack</title>
+<meta name="theme-color" content="#171008">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
@@ -12,11 +15,13 @@
   <canvas id="fxCanvas"></canvas>
   <header class="topbar">
     <div class="brand">♠ Royal Blackjack</div>
+    <span class="mode-badge" id="modeBadge"></span>
     <div class="topbtns">
       <button class="tbtn" id="btnHint" title="Basic strategy advice (B)">Hint</button>
-      <button class="tbtn" id="btnStats" title="Session statistics">Stats</button>
-      <button class="tbtn" id="btnRules" title="House rules &amp; shortcuts">Rules</button>
-      <button class="tbtn" id="btnSound" title="Toggle sound (M)">Sound on</button>
+      <button class="tbtn" id="btnCoach" title="Real-time strategy coaching (K)">Coach</button>
+      <button class="tbtn" id="btnDaily" title="Daily challenge — same shuffle for everyone">Daily</button>
+      <button class="tbtn" id="btnRun" title="Roguelike run mode">Run</button>
+      <button class="tbtn" id="btnMenu" title="Stats, trainer, settings and more">Menu</button>
     </div>
   </header>
   <main class="table">
@@ -42,6 +47,12 @@
     <div class="bet-spot">
       <div class="bet-circle empty" id="betCircle"><div class="bet-stack" id="betStack"></div></div>
       <div class="bet-amt" id="betAmt"></div>
+      <div class="side-row" id="sideRow">
+        <button class="side-spot" data-side="pp" title="Perfect Pairs — pair 6:1, colored 12:1, perfect 25:1 ($5 per click)"><span class="ss-name">Pairs</span><span class="ss-amt" id="ssamt-pp"></span></button>
+        <button class="side-spot" data-side="tp" title="21+3 — flush 5:1, straight 10:1, trips 30:1, str. flush 40:1, suited trips 100:1"><span class="ss-name">21+3</span><span class="ss-amt" id="ssamt-tp"></span></button>
+        <button class="side-spot" data-side="ll" title="Lucky Lucky — 19/20 pays 2:1, 21 up to 15:1, 6-7-8 up to 100:1, 7-7-7 up to 200:1"><span class="ss-name">Lucky</span><span class="ss-amt" id="ssamt-ll"></span></button>
+        <button class="side-spot" data-side="bust" title="Buster — pays when the dealer busts, 2:1 up to 250:1 by card count"><span class="ss-name">Bust</span><span class="ss-amt" id="ssamt-bust"></span></button>
+      </div>
     </div>
     <div class="toastN" id="toastEl"></div>
   </main>
@@ -79,6 +90,7 @@
   <div class="overlay" id="ovStats">
     <div class="panel">
       <h3>Session stats</h3>
+      <canvas id="bkChart" width="380" height="92" style="width:100%;margin-bottom:12px"></canvas>
       <div class="sgrid" id="sgrid"></div>
       <div class="prow"><button class="tbtn" id="btnReset">Reset bankroll &amp; stats</button><button class="gbtn" id="btnStatsClose">Close</button></div>
     </div>
@@ -94,6 +106,7 @@
         <li>Double down on any first two cards, including after a split</li>
         <li>Split once on any equal-value pair · split aces get one card each</li>
         <li>Surrender your first two cards to keep half your bet</li>
+        <li>Decks, soft-17, payouts, peek and more are configurable in Menu → Settings</li>
       </ul>
       <h3>Shortcuts</h3>
       <p><span class="kbd">H</span> hit · <span class="kbd">S</span> stand · <span class="kbd">D</span> double · <span class="kbd">P</span> split · <span class="kbd">U</span> surrender · <span class="kbd">Enter</span> deal · <span class="kbd">R</span> rebet · <span class="kbd">C</span> clear · <span class="kbd">1–4</span> chips · <span class="kbd">B</span> hint · <span class="kbd">M</span> sound</p>
@@ -107,16 +120,89 @@
       <div class="prow"><button class="gbtn" id="btnLoan">Take the credit</button></div>
     </div>
   </div>
+  <div class="overlay" id="ovMenu">
+    <div class="panel">
+      <h3>Menu</h3>
+      <div class="menu-grid">
+        <button class="mbtn" id="btnStats">Stats</button>
+        <button class="mbtn" id="mAch">Achievements</button>
+        <button class="mbtn" id="mTrainer">Trainer</button>
+        <button class="mbtn" id="mChart">Strategy chart</button>
+        <button class="mbtn" id="mSettings">Settings</button>
+        <button class="mbtn" id="mFair">Fairness</button>
+        <button class="mbtn" id="btnRules">Rules</button>
+        <button class="mbtn" id="btnSound">Sound on</button>
+      </div>
+      <div class="prow"><button class="gbtn" id="btnMenuClose">Close</button></div>
+    </div>
+  </div>
+  <div class="overlay" id="ovSettings">
+    <div class="panel">
+      <h3>Settings</h3>
+      <div id="setBody"></div>
+      <div class="prow"><button class="gbtn" id="btnSettingsClose">Close</button></div>
+    </div>
+  </div>
+  <div class="overlay" id="ovAch">
+    <div class="panel wide">
+      <h3>Achievements</h3>
+      <div id="achBody"></div>
+      <div class="prow"><button class="gbtn" id="btnAchClose">Close</button></div>
+    </div>
+  </div>
+  <div class="overlay" id="ovTrainer">
+    <div class="panel wide">
+      <h3>Trainer</h3>
+      <div id="trainBody"></div>
+      <div class="prow"><button class="gbtn" id="btnTrainerClose">Close</button></div>
+    </div>
+  </div>
+  <div class="overlay" id="ovChart">
+    <div class="panel wide">
+      <h3>Strategy chart</h3>
+      <div id="chartBody"></div>
+      <div class="prow"><button class="gbtn" id="btnChartClose">Close</button></div>
+    </div>
+  </div>
+  <div class="overlay" id="ovFair">
+    <div class="panel">
+      <h3>Provably fair</h3>
+      <div id="fairBody"></div>
+      <div class="prow"><button class="gbtn" id="btnFairClose">Close</button></div>
+    </div>
+  </div>
+  <div class="overlay" id="ovDaily">
+    <div class="panel">
+      <h3 id="dailyTitle">Daily challenge</h3>
+      <div id="dailyBody"></div>
+      <div class="prow" id="dailyRow"></div>
+    </div>
+  </div>
+  <div class="overlay" id="ovRun">
+    <div class="panel">
+      <h3 id="runTitle">Run mode</h3>
+      <div id="runBody"></div>
+      <div class="prow" id="runRow"></div>
+    </div>
+  </div>
 </div>
 <script src="js/utils.js"></script>
 <script src="js/dom.js"></script>
 <script src="js/audio.js"></script>
 <script src="js/cards.js"></script>
 <script src="js/state.js"></script>
+<script src="js/sidebets.js"></script>
 <script src="js/render.js"></script>
 <script src="js/fx.js"></script>
 <script src="js/strategy.js"></script>
+<script src="js/coach.js"></script>
 <script src="js/game.js"></script>
+<script src="js/daily.js"></script>
+<script src="js/achieve.js"></script>
+<script src="js/trainer.js"></script>
+<script src="js/sim.js"></script>
+<script src="js/fair.js"></script>
+<script src="js/run.js"></script>
 <script src="js/main.js"></script>
 </body>
 </html>

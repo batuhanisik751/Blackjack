@@ -10,11 +10,11 @@ async function flyCard(c, container, faceUp){
   el.style.transition = '';
   SFX.deal();
   el.style.transform = '';
-  await sleep(440);
+  await wait(440);
   if(faceUp){
     el.classList.add('faceup');
     SFX.flip();
-    await sleep(290);
+    await wait(290);
   }
   return el;
 }
@@ -37,6 +37,12 @@ function flyChip(fromEl, toEl, d){
   el.style.transform = 'translate(' + ((tr.left + tr.width / 2) - (fr.left + fr.width / 2)) + 'px,' + ((tr.top + tr.height / 2) - (fr.top + fr.height / 2)) + 'px) rotate(520deg)';
   el.style.opacity = '.92';
   setTimeout(function(){ el.remove() }, 620);
+}
+
+async function hitStop(){
+  app.classList.add('hitstop');
+  await sleep(120);
+  app.classList.remove('hitstop');
 }
 
 function payoutFx(net){

@@ -1,0 +1,13 @@
+{
+  "name": "Royal Blackjack",
+  "short_name": "Blackjack",
+  "description": "Casino blackjack with side bets, daily challenges, a strategy coach and a card-counting trainer.",
+  "start_url": ".",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#171008",
+  "theme_color": "#171008",
+  "icons": [
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}

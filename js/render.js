@@ -145,23 +145,70 @@ function updateButtons(){
     const d = +el.dataset.d;
     el.classList.toggle('off', !(betting && S.bankroll >= d));
   });
-  btnClear.disabled = !(betting && S.bet > 0);
-  btnRebet.disabled = !(betting && S.lastBet > 0 && (S.bankroll + S.bet) >= S.lastBet);
+  btnClear.disabled = !(betting && (S.bet > 0 || sideTotal() > 0));
+  btnRebet.disabled = !(betting && S.lastBet > 0 && (S.bankroll + S.bet + sideTotal()) >= (S.lastBet + lastSideTotal()));
   btnDeal.disabled = !(betting && S.bet >= 5);
+  renderSide();
   const playing = S.phase === 'player' && !busy;
   const h = playing ? S.hands[S.active] : null;
   btnHit.disabled = !playing;
   btnStand.disabled = !playing;
-  btnDouble.disabled = !(playing && h && h.cards.length === 2 && S.bankroll >= h.bet);
+  btnDouble.disabled = !(playing && h && h.cards.length === 2 && S.bankroll >= h.bet && (!h.fromSplit || S.rules.das));
   btnSplit.disabled = !(playing && h && h.cards.length === 2 && S.hands.length === 1 && cardVal(h.cards[0]) === cardVal(h.cards[1]) && S.bankroll >= h.bet);
-  btnSurrender.disabled = !(playing && h && h.cards.length === 2 && S.hands.length === 1 && !h.fromSplit);
+  btnSurrender.disabled = !(playing && h && h.cards.length === 2 && S.hands.length === 1 && !h.fromSplit && S.rules.surrender);
   btnHint.disabled = !playing;
+}
+
+function applyHeater(){
+  const st = S.mode === 'free' ? S.stats.streak : 0;
+  app.dataset.heat = st >= 8 ? '3' : st >= 5 ? '2' : st >= 3 ? '1' : '';
+}
+
+function drawBankChart(){
+  const c = $id('bkChart');
+  if(!c) return;
+  const hist = store.get('bj-history', []);
+  const ctx = c.getContext('2d');
+  ctx.clearRect(0, 0, c.width, c.height);
+  if(hist.length < 2){
+    ctx.fillStyle = 'rgba(232,219,180,.45)';
+    ctx.font = '12px -apple-system, sans-serif';
+    ctx.fillText('Bankroll graph appears after a few rounds', 10, 48);
+    return;
+  }
+  const min = Math.min.apply(null, hist), max = Math.max.apply(null, hist), pad = 8;
+  const sx = (c.width - 2 * pad) / (hist.length - 1);
+  const sy = max > min ? (c.height - 2 * pad) / (max - min) : 1;
+  if(min <= 1000 && max >= 1000 && max > min){
+    const y = c.height - pad - (1000 - min) * sy;
+    ctx.strokeStyle = 'rgba(255,255,255,.22)';
+    ctx.setLineDash([4, 4]);
+    ctx.beginPath(); ctx.moveTo(pad, y); ctx.lineTo(c.width - pad, y); ctx.stroke();
+    ctx.setLineDash([]);
+  }
+  ctx.beginPath();
+  hist.forEach(function(v, i){
+    const x = pad + i * sx, y = c.height - pad - (v - min) * sy;
+    if(i) ctx.lineTo(x, y); else ctx.moveTo(x, y);
+  });
+  ctx.strokeStyle = '#f6dd9a';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+  ctx.lineTo(c.width - pad, c.height - pad);
+  ctx.lineTo(pad, c.height - pad);
+  ctx.closePath();
+  ctx.fillStyle = 'rgba(246,221,154,.1)';
+  ctx.fill();
+  ctx.fillStyle = 'rgba(232,219,180,.6)';
+  ctx.font = '10px -apple-system, sans-serif';
+  ctx.fillText(fmt(max), 8, 12);
+  ctx.fillText(fmt(min), 8, c.height - 4);
 }
 
 function renderStatsPanel(){
   const st = S.stats;
   const wr = st.hands ? Math.round(100 * st.wins / st.hands) : 0;
-  const tc = S.shoe.length ? (S.runCount / (S.shoe.length / 52)) : 0;
+  const tc = window.trueCount ? window.trueCount() : 0;
   sgrid.innerHTML =
     '<span>Hands played</span><b>' + st.hands + '</b>' +
     '<span>Won / lost / pushed</span><b>' + st.wins + ' / ' + st.losses + ' / ' + st.pushes + '</b>' +
@@ -173,8 +220,39 @@ function renderStatsPanel(){
     '<span>House loans</span><b>' + st.loans + '</b>' +
     '<span>Running count (Hi-Lo)</span><b>' + (S.runCount > 0 ? '+' : '') + S.runCount + '</b>' +
     '<span>True count</span><b>' + (tc > 0 ? '+' : '') + (Math.round(tc * 10) / 10) + '</b>';
+  drawBankChart();
 }
 
 function closeOverlays(){
-  [ovStats, ovRules].forEach(function(o){ o.classList.remove('show') });
+  [ovStats, ovRules, ovMenu, ovSettings, ovAch, ovTrainer, ovChart, ovFair].forEach(function(o){ o.classList.remove('show') });
+}
+
+function openPanel(ov){
+  closeOverlays();
+  ov.classList.add('show');
+}
+
+function renderSettings(){
+  let h = '<div class="set-sec"><div class="set-label">Game speed</div><div class="pillrow">';
+  [['relaxed','Relaxed'],['normal','Normal'],['fast','Fast'],['instant','Instant']].forEach(function(p){
+    h += '<button class="pill' + (S.opts.speed === p[0] ? ' sel' : '') + '" data-set="speed" data-v="' + p[0] + '">' + p[1] + '</button>';
+  });
+  h += '</div></div>';
+  h += window.rulesExtras ? window.rulesExtras() : '';
+  h += window.settingsExtras ? window.settingsExtras() : '';
+  setBody.innerHTML = h;
+}
+
+function renderArc(){
+  const a1 = document.querySelector('.arc .a1 textPath');
+  const a2 = document.querySelector('.arc .a2 textPath');
+  if(a1) a1.textContent = 'Blackjack pays ' + (S.rules.bjPay === 1.5 ? '3 to 2' : '6 to 5');
+  if(a2) a2.textContent = (S.rules.h17 ? 'Dealer hits soft 17' : 'Dealer stands on all 17s') + ' · Insurance pays 2 to 1';
+}
+
+function applyCosmetics(){
+  app.dataset.speed = S.opts.speed;
+  app.dataset.back = S.opts.back;
+  app.dataset.felt = S.opts.felt;
+  renderArc();
 }

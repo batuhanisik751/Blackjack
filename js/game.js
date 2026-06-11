@@ -9,7 +9,7 @@ async function sweepTable(){
       el.classList.add('discard');
     });
     SFX.flip();
-    await sleep(480 + cards.length * 30);
+    await wait(480 + cards.length * 30);
   }
   dealerHand.innerHTML = '';
   playerRow.innerHTML = '';
@@ -40,7 +40,7 @@ async function revealHole(){
     el.classList.add('faceup');
     SFX.flip();
     countCard(S.dealer[1]);
-    await sleep(330);
+    await wait(330);
     renderScores();
   }
 }
@@ -63,44 +63,51 @@ function offerInsurance(){
 async function deal(){
   if(btnDeal.disabled || busy || S.phase !== 'betting' || S.bet < 5) return;
   busy = true; updateButtons(); hideBanner();
-  if(S.shoe.length < RESHUFFLE){
+  if(S.shoe.length < shufflePoint()){
     msg('Shuffling a fresh six-deck shoe…');
     SFX.shuffle();
     shoeStack.classList.add('shuffling');
-    await sleep(1050);
+    await wait(1050);
     shoeStack.classList.remove('shuffling');
     newShoe();
     toast('New shoe in play');
   }
   S.lastBet = S.bet;
   store.set('bj-lastbet', S.lastBet);
+  S.lastSide = Object.assign({}, S.side);
+  store.set('bj-lastside', S.lastSide);
   await sweepTable();
   S.hands = [{ cards: [], bet: S.bet, doubled: false, surrendered: false, busted: false, fromSplit: false, splitAces: false, done: false }];
-  S.active = 0; S.dealer = []; S.insurance = 0; S.bet = 0;
+  S.active = 0; S.dealer = []; S.insurance = 0; S.bet = 0; S.insFree = false;
   S.phase = 'dealing'; saveBank();
+  S.wasAllIn = S.bankroll === 0;
+  S.preRoundBank = S.bankroll + inPlay();
   rebuildHands(); renderBet(); updateButtons();
   msg('Dealing…');
   await dealTo(0);
   await dealDealerCard(true);
   await dealTo(0);
   await dealDealerCard(false);
+  await resolveEarlySides();
   const up = cardVal(S.dealer[0]);
   if(up === 11 && S.bankroll >= S.hands[0].bet / 2){
     const take = await offerInsurance();
+    coachInsurance(take);
     if(take){
       S.insurance = S.hands[0].bet / 2;
-      S.bankroll -= S.insurance;
+      S.insFree = !!(S.mode === 'run' && S.run && S.run.perks.insFree);
+      if(!S.insFree) S.bankroll -= S.insurance;
       saveBank(); renderBankroll();
       SFX.chip();
-      toast('Insurance bought: ' + fmt(S.insurance));
-      await sleep(350);
+      toast(S.insFree ? 'Insurance comped by the house' : 'Insurance bought: ' + fmt(S.insurance));
+      await wait(350);
     }
   }
-  if(up >= 10){
+  if(up >= 10 && S.rules.peek){
     msg('Dealer checks for blackjack…');
     const hole = dealerHand.children[1];
     hole.classList.add('peek');
-    await sleep(950);
+    await wait(950);
     hole.classList.remove('peek');
     if(handValue(S.dealer).total === 21){
       await revealHole();
@@ -112,8 +119,9 @@ async function deal(){
   }
   if(isBJ(S.hands[0])){
     await revealHole();
-    await sleep(380);
-    await settleRound();
+    await wait(380);
+    if(S.side.bust > 0) await dealerTurn();
+    else await settleRound();
     return;
   }
   S.phase = 'player'; busy = false;
@@ -123,6 +131,7 @@ async function deal(){
 
 async function actHit(){
   if(btnHit.disabled) return;
+  coachNote('Hit');
   busy = true; updateButtons();
   const i = S.active, h = S.hands[i];
   await dealTo(i);
@@ -133,7 +142,11 @@ async function actHit(){
     SFX.lose();
     const w = $id('hw' + i);
     if(w) shakeEl(w);
-    await sleep(680);
+    await wait(680);
+    await advance();
+  }else if(S.mode === 'run' && S.run && S.run.perks.charlie && h.cards.length >= 5){
+    toast('Five-card Charlie!');
+    h.done = true;
     await advance();
   }else if(t === 21){
     h.done = true;
@@ -145,6 +158,7 @@ async function actHit(){
 
 async function actStand(){
   if(btnStand.disabled) return;
+  coachNote('Stand');
   busy = true; updateButtons();
   S.hands[S.active].done = true;
   await advance();
@@ -152,14 +166,18 @@ async function actStand(){
 
 async function actDouble(){
   if(btnDouble.disabled) return;
+  coachNote('Double');
   busy = true; updateButtons();
   const i = S.active, h = S.hands[i];
-  S.bankroll -= h.bet; h.bet *= 2; h.doubled = true;
+  const freeD = S.mode === 'run' && S.run && S.run.perks.freeDouble && !S.run.freeDoubleUsed;
+  if(freeD){ S.run.freeDoubleUsed = true; h.freeDble = true }
+  else S.bankroll -= h.bet;
+  h.bet *= 2; h.doubled = true;
   saveBank(); renderBankroll(); renderBet(); renderBetBadges();
   SFX.chip();
   flyChip(bankWrap, betCircle, Math.min(500, h.bet / 2 >= 100 ? 100 : 25));
-  toast('Double down — one card');
-  await sleep(330);
+  toast(freeD ? 'Double down — on the house!' : 'Double down — one card');
+  await wait(330);
   await dealTo(i, { dbl: true });
   const t = handValue(h.cards).total;
   if(t > 21){
@@ -168,7 +186,7 @@ async function actDouble(){
     SFX.lose();
     const w = $id('hw' + i);
     if(w) shakeEl(w);
-    await sleep(620);
+    await wait(620);
   }
   h.done = true;
   await advance();
@@ -176,6 +194,7 @@ async function actDouble(){
 
 async function actSplit(){
   if(btnSplit.disabled) return;
+  coachNote('Split');
   busy = true; updateButtons();
   const h = S.hands[0];
   const c2 = h.cards.pop();
@@ -187,7 +206,7 @@ async function actSplit(){
   SFX.chip();
   rebuildHands(); renderBet();
   toast(aces ? 'Splitting aces — one card each' : 'Splitting the pair');
-  await sleep(420);
+  await wait(420);
   await dealTo(0);
   if(aces){
     h.done = true;
@@ -205,12 +224,13 @@ async function actSplit(){
 
 async function actSurrender(){
   if(btnSurrender.disabled) return;
+  coachNote('Surrender');
   busy = true; updateButtons();
   const h = S.hands[0];
   h.surrendered = true; h.done = true;
   setTag(0, 'Surrender', 'push');
   toast('Surrendered — half the bet comes back');
-  await sleep(550);
+  await wait(550);
   await advance();
 }
 
@@ -223,7 +243,7 @@ async function advance(){
       await dealTo(S.active);
       if(h.splitAces){
         h.done = true;
-        await sleep(380);
+        await wait(380);
         return advance();
       }
       if(handValue(h.cards).total === 21){
@@ -243,18 +263,21 @@ async function advance(){
 async function dealerTurn(){
   S.phase = 'dealer';
   renderActive(); updateButtons();
-  await sleep(320);
+  await wait(320);
   await revealHole();
-  const live = S.hands.some(function(h){ return !h.busted && !h.surrendered });
+  const live = S.hands.some(function(h){ return !h.busted && !h.surrendered }) || S.side.bust > 0;
   if(live){
     msg('Dealer plays…');
-    while(handValue(S.dealer).total < 17){
-      await sleep(430);
-      await dealDealerCard(true);
+    while(true){
+      const dvv = handValue(S.dealer);
+      if(dvv.total < 17 || (S.rules.h17 && dvv.total === 17 && dvv.soft)){
+        await wait(430);
+        await dealDealerCard(true);
+      }else break;
     }
     if(handValue(S.dealer).total > 21) msg('Dealer busts!');
   }
-  await sleep(560);
+  await wait(560);
   await settleRound();
 }
 
@@ -262,58 +285,96 @@ async function settleRound(){
   S.phase = 'settle';
   updateButtons(); renderActive();
   const dv = handValue(S.dealer).total, dBust = dv > 21;
-  let stake = S.insurance, ret = 0, bjHit = false;
+  const dealerBJ = S.dealer.length === 2 && dv === 21;
+  resolveBuster(dBust);
+  const statsBak = S.mode === 'free' ? null : JSON.parse(JSON.stringify(S.stats));
+  const RP = (S.mode === 'run' && S.run) ? S.run.perks : {};
+  let stake = S.insFree ? 0 : S.insurance, ret = 0, bjHit = false;
   const res = [];
   for(const h of S.hands){
-    stake += h.bet;
+    stake += h.freeDble ? h.bet / 2 : h.bet;
     let r = 0, txt = '', cls = '';
-    if(h.surrendered){ r = h.bet / 2; txt = '−' + fmt(h.bet / 2).slice(1); cls = 'push'; S.stats.losses++ }
+    if(h.surrendered){
+      const sr = RP.surr75 ? 0.75 : 0.5;
+      r = h.bet * sr; txt = '−' + fmt(h.bet * (1 - sr)).slice(1); cls = 'push'; S.stats.losses++;
+    }
     else if(h.busted){ r = 0; txt = 'Bust −' + fmt(h.bet).slice(1); cls = 'lose'; S.stats.losses++ }
-    else if(isBJ(h)){ r = h.bet * 2.5; txt = 'Blackjack +' + fmt(h.bet * 1.5).slice(1); cls = 'bj'; S.stats.wins++; S.stats.bjs++; bjHit = true }
+    else if(isBJ(h)){
+      if(dealerBJ){ r = h.bet; txt = 'Push'; cls = 'push'; S.stats.pushes++ }
+      else{
+        const bjp = RP.bj2x ? 2 : S.rules.bjPay;
+        r = h.bet * (1 + bjp); txt = 'Blackjack +' + fmt(h.bet * bjp).slice(1); cls = 'bj'; S.stats.wins++; S.stats.bjs++; bjHit = true;
+      }
+    }
+    else if(RP.charlie && h.cards.length >= 5){ r = h.bet * 2; txt = 'Charlie +' + fmt(h.bet).slice(1); cls = 'win'; S.stats.wins++ }
+    else if(dealerBJ){ r = 0; txt = '−' + fmt(h.bet).slice(1); cls = 'lose'; S.stats.losses++ }
     else{
       const t = handValue(h.cards).total;
       if(dBust || t > dv){ r = h.bet * 2; txt = 'Win +' + fmt(h.bet).slice(1); cls = 'win'; S.stats.wins++ }
       else if(t < dv){ r = 0; txt = '−' + fmt(h.bet).slice(1); cls = 'lose'; S.stats.losses++ }
-      else{ r = h.bet; txt = 'Push'; cls = 'push'; S.stats.pushes++ }
+      else{
+        r = h.bet * (RP.pushWin ? 1.25 : 1);
+        txt = RP.pushWin ? 'Push +' + fmt(h.bet * 0.25).slice(1) : 'Push';
+        cls = 'push'; S.stats.pushes++;
+      }
+    }
+    if(h.freeDble){
+      if(r === h.bet * 2) r = h.bet * 1.5;
+      else if(r === h.bet * 1.25) r = h.bet * 0.75;
+      else if(r === h.bet) r = h.bet / 2;
     }
     ret += r;
     res.push({ txt: txt, cls: cls });
   }
+  if(S.insurance > 0 && dealerBJ){
+    ret += S.insurance * (S.insFree ? 2 : 3);
+    toast('Insurance pays ' + fmt(S.insurance * 2));
+  }
   S.stats.hands += S.hands.length;
-  const net = ret - stake;
+  const net = ret - stake + S.sideNet;
+  S.sideNet = 0;
   S.bankroll += ret;
   saveBank();
   S.stats.net += net;
   if(net > S.stats.bigWin) S.stats.bigWin = net;
   S.stats.streak = net > 0 ? S.stats.streak + 1 : (net < 0 ? 0 : S.stats.streak);
   if(S.stats.streak > S.stats.bestStreak) S.stats.bestStreak = S.stats.streak;
-  saveStats();
+  S.lastNet = net; S.lastBJ = bjHit;
+  if(statsBak) S.stats = statsBak; else { saveStats(); pushHistory(); }
   res.forEach(function(r, i){ setTag(i, r.txt, r.cls) });
   renderBankroll(); renderBet();
   const allPush = res.every(function(r){ return r.cls === 'push' });
-  if(bjHit){ showBanner('Blackjack!', 'bj'); SFX.big(); confetti(190, true) }
-  else if(net > 0){ showBanner('You win +' + fmt(net).slice(1), 'win'); SFX.win(); if(net >= 100) confetti(120, false) }
+  if(bjHit){ await hitStop(); showBanner('Blackjack!', 'bj'); SFX.big(); confetti(190, true) }
+  else if(net > 0){
+    showBanner('You win +' + fmt(net).slice(1), 'win');
+    SFX.win(S.stats.streak);
+    if(net >= 100) confetti(Math.min(240, Math.round(80 + net / 2)), false);
+  }
   else if(net < 0){
     const allSurr = S.hands.every(function(h){ return h.surrendered });
     const allBust = S.hands.every(function(h){ return h.busted });
     if(allSurr){ showBanner('Surrendered −' + fmt(net).slice(2), 'push'); SFX.lose() }
     else if(allPush){ showBanner('Push — insurance lost', 'push'); SFX.push() }
-    else{ showBanner((allBust ? 'Bust ' : 'Dealer wins ') + '−' + fmt(net).slice(2), 'lose'); SFX.lose() }
+    else{ showBanner((dealerBJ ? 'Dealer blackjack ' : allBust ? 'Bust ' : 'Dealer wins ') + '−' + fmt(net).slice(2), 'lose'); SFX.lose() }
+    if(net <= -100) shakeEl(app);
   }
   else{ showBanner('Push', 'push'); SFX.push() }
+  if(window.checkAwards) checkAwards('round', { net: net, bjHit: bjHit, res: res });
   payoutFx(net);
-  await sleep(1950);
+  await wait(1950);
   enterBetting();
 }
 
 async function settleDealerBJ(){
   S.phase = 'settle';
   updateButtons(); renderActive();
+  resolveBuster(false);
+  const statsBak = S.mode === 'free' ? null : JSON.parse(JSON.stringify(S.stats));
   const h = S.hands[0];
   let ret = 0;
-  const stake = h.bet + S.insurance;
+  const stake = h.bet + (S.insFree ? 0 : S.insurance);
   if(S.insurance > 0){
-    ret += S.insurance * 3;
+    ret += S.insurance * (S.insFree ? 2 : 3);
     toast('Insurance pays ' + fmt(S.insurance * 2));
   }
   if(isBJ(h)){
@@ -329,31 +390,38 @@ async function settleDealerBJ(){
     SFX.lose();
   }
   S.stats.hands++;
-  const net = ret - stake;
+  const net = ret - stake + S.sideNet;
+  S.sideNet = 0;
   S.bankroll += ret;
   saveBank();
   S.stats.net += net;
   if(net > S.stats.bigWin) S.stats.bigWin = net;
   S.stats.streak = net > 0 ? S.stats.streak + 1 : (net < 0 ? 0 : S.stats.streak);
   if(S.stats.streak > S.stats.bestStreak) S.stats.bestStreak = S.stats.streak;
-  saveStats();
+  S.lastNet = net; S.lastBJ = false;
+  if(statsBak) S.stats = statsBak; else { saveStats(); pushHistory(); }
   renderBankroll(); renderBet();
   if(net > 0) SFX.win();
-  await sleep(1950);
+  if(window.checkAwards) checkAwards('round', { net: net, bjHit: false, res: [] });
+  await wait(1950);
   enterBetting();
 }
 
 function enterBetting(){
   S.phase = 'betting'; S.insurance = 0; busy = false;
   renderBet(); updateButtons(); renderActive();
-  msg(S.lastBet ? 'Place your bet — or press Rebet' : 'Place your bet');
   bannerT = setTimeout(hideBanner, 2600);
+  applyHeater();
+  if(S.mode !== 'free' && window.modeAfterRound && window.modeAfterRound()) return;
+  msg((S.lastBet ? 'Place your bet — or press Rebet' : 'Place your bet') +
+    (S.mode === 'free' && S.stats.streak >= 3 ? ' · ' + S.stats.streak + ' win streak 🔥' : ''));
   if(S.bankroll < 5 && S.bet === 0){
     $id('loanText').textContent = 'The pit boss looks you over, sighs, and slides a fresh $1,000 across the felt. The house keeps track of these things. (Loan #' + (S.stats.loans + 1) + ')';
     ovLoan.classList.add('show');
-  }else if(S.shoe.length < RESHUFFLE){
+  }else if(S.shoe.length < shufflePoint()){
     toast('Shoe is running low — shuffling on the next deal');
   }
+  if(window.maybeCountQuiz) window.maybeCountQuiz();
 }
 
 function placeChip(d){
@@ -373,20 +441,23 @@ function placeChip(d){
 
 function clearBet(){
   if(btnClear.disabled) return;
-  S.bankroll += S.bet; S.bet = 0;
+  S.bankroll += S.bet + sideTotal();
+  S.bet = 0;
+  S.side = { pp: 0, tp: 0, ll: 0, bust: 0 };
   saveBank();
   SFX.chip();
   flyChip(betCircle, bankWrap, 25);
-  renderBankroll(); renderBet(); updateButtons();
+  renderBankroll(); renderBet(); renderSide(); updateButtons();
 }
 
 function rebet(){
   if(btnRebet.disabled) return;
-  S.bankroll += S.bet;
+  S.bankroll += S.bet + sideTotal();
   S.bet = S.lastBet;
-  S.bankroll -= S.bet;
+  S.side = Object.assign({}, S.lastSide);
+  S.bankroll -= S.bet + sideTotal();
   saveBank();
   SFX.chip();
   flyChip(btnRebet, betCircle, S.lastBet >= 100 ? 100 : S.lastBet >= 25 ? 25 : 5);
-  renderBankroll(); renderBet(); updateButtons();
+  renderBankroll(); renderBet(); renderSide(); updateButtons();
 }
