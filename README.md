@@ -1,10 +1,27 @@
 # Royal Blackjack
 
-A casino-style blackjack game in a single HTML file — no dependencies, no build step, no server required.
+A casino-style blackjack game in plain HTML/CSS/JavaScript — no dependencies, no build step, no server required.
 
 ## Play
 
 Open `index.html` in any modern browser.
+
+## Project structure
+
+```
+index.html        markup shell
+css/styles.css    all styling (table, cards, chips, animations)
+js/utils.js       small helpers (format, storage, sleep)
+js/dom.js         element references
+js/audio.js       synthesized sound effects (Web Audio)
+js/cards.js       deck constants and card DOM construction
+js/state.js       game state, shoe, hand math, persistence
+js/render.js      all DOM rendering and button states
+js/fx.js          card/chip flight animations, confetti
+js/strategy.js    basic-strategy hint engine
+js/game.js        round flow: deal, actions, dealer, settlement
+js/main.js        event wiring and init
+```
 
 ## Features
 
