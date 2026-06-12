@@ -1,7 +1,7 @@
 'use strict';
 
 const S = {
-  bankroll: store.get('bj-bank', 1000),
+  bankroll: (function(){ const v = store.get('bj-bank', 1000); return (typeof v === 'number' && isFinite(v)) ? v : 1000 })(),
   bet: 0,
   lastBet: store.get('bj-lastbet', 0),
   shoe: [], runCount: 0,

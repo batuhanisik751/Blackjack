@@ -135,7 +135,7 @@ document.addEventListener('keydown', function(e){
 });
 
 if('serviceWorker' in navigator && location.protocol !== 'file:'){
-  try{ navigator.serviceWorker.register('sw.js') }catch(e){}
+  try{ navigator.serviceWorker.register('../sw.js') }catch(e){}
 }
 
 newShoe();
@@ -149,3 +149,13 @@ if(S.bankroll < 5){
   $id('loanText').textContent = 'The pit boss looks you over, sighs, and slides a fresh $1,000 across the felt. The house keeps track of these things. (Loan #' + (S.stats.loans + 1) + ')';
   ovLoan.classList.add('show');
 }
+
+window.addEventListener('storage', function(e){
+  if(e.key !== 'bj-bank') return;
+  if(S.mode !== 'free' || S.phase !== 'betting' || busy || S.bet > 0 || sideTotal() > 0) return;
+  const v = store.get('bj-bank', null);
+  if(typeof v === 'number' && isFinite(v)){
+    S.bankroll = v;
+    renderBankroll(); updateButtons();
+  }
+});

@@ -1,13 +1,18 @@
 {
-  "name": "Royal Blackjack",
-  "short_name": "Blackjack",
-  "description": "Casino blackjack with side bets, daily challenges, a strategy coach and a card-counting trainer.",
+  "name": "Royal Casino",
+  "short_name": "Casino",
+  "description": "Blackjack and 8-ball pool with one shared bankroll \u2014 side bets, strategy coach, daily challenges, and a pool shark to hustle.",
   "start_url": ".",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#171008",
   "theme_color": "#171008",
   "icons": [
-    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
   ]
 }

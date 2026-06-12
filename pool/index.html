@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Royal Eight-Ball</title>
+<meta name="theme-color" content="#131a22">
+<link rel="manifest" href="../manifest.json">
+<link rel="icon" href="../icon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="css/pool.css">
+</head>
+<body>
+<div id="plApp">
+  <header class="topbar">
+    <a class="brand" href="../" title="Back to the casino lobby">♠ Royal Eight-Ball</a>
+    <div class="topr">
+      <div class="potwrap"><span class="potlab">Pot</span><span id="potAmt">—</span></div>
+      <div class="wal"><span class="wlab">Wallet</span><span id="bankAmt">$1,000</span></div>
+      <button class="tbtn" id="btnSound">Sound on</button>
+    </div>
+  </header>
+  <div class="hud">
+    <div class="panel-side" id="pPanel">
+      <span class="pname">You</span>
+      <span class="pbadge" id="pBadge">open</span>
+      <span class="tray" id="pTray"></span>
+    </div>
+    <div class="msgline" id="msgEl">Welcome to the back room</div>
+    <div class="panel-side" id="cPanel" style="justify-content:flex-end">
+      <span class="tray" id="cTray"></span>
+      <span class="pbadge" id="cBadge">open</span>
+      <span class="pname" id="cName">The House</span>
+    </div>
+  </div>
+  <div class="stage">
+    <canvas id="tableCv"></canvas>
+    <div class="powercol">
+      <div class="powerbar"><div id="powerFill"></div></div>
+      <span class="plab">Power</span>
+    </div>
+    <div class="pl-banner" id="banner"></div>
+  </div>
+  <div class="msgline" style="opacity:.55">Aim with the mouse · click-hold to charge · release to shoot</div>
+  <div class="overlay" id="ovMatch">
+    <div class="mpanel">
+      <h3 id="mTitle">Royal Eight-Ball</h3>
+      <div id="mBody"></div>
+      <div class="prow" id="mRow"></div>
+    </div>
+  </div>
+</div>
+<script src="js/wallet.js"></script>
+<script src="js/physics.js"></script>
+<script src="js/ai.js"></script>
+<script src="js/game.js"></script>
+</body>
+</html>

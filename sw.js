@@ -1,12 +1,16 @@
 'use strict';
 
-const CACHE = 'royal-bj-v1';
+const CACHE = 'royal-casino-v3';
 const ASSETS = [
-  '.', 'index.html', 'css/styles.css', 'manifest.json', 'icon.svg',
-  'js/utils.js', 'js/dom.js', 'js/audio.js', 'js/cards.js', 'js/state.js',
-  'js/sidebets.js', 'js/render.js', 'js/fx.js', 'js/strategy.js', 'js/coach.js',
-  'js/game.js', 'js/daily.js', 'js/achieve.js', 'js/trainer.js', 'js/sim.js',
-  'js/fair.js', 'js/main.js'
+  '.', 'index.html', 'manifest.json', 'icon.svg',
+  'blackjack/', 'blackjack/index.html', 'blackjack/css/styles.css',
+  'blackjack/js/utils.js', 'blackjack/js/dom.js', 'blackjack/js/audio.js', 'blackjack/js/cards.js',
+  'blackjack/js/state.js', 'blackjack/js/sidebets.js', 'blackjack/js/render.js', 'blackjack/js/fx.js',
+  'blackjack/js/strategy.js', 'blackjack/js/coach.js', 'blackjack/js/game.js', 'blackjack/js/daily.js',
+  'blackjack/js/achieve.js', 'blackjack/js/trainer.js', 'blackjack/js/sim.js', 'blackjack/js/fair.js',
+  'blackjack/js/run.js', 'blackjack/js/main.js',
+  'pool/', 'pool/index.html', 'pool/css/pool.css',
+  'pool/js/wallet.js', 'pool/js/physics.js', 'pool/js/ai.js', 'pool/js/game.js'
 ];
 
 self.addEventListener('install', function(e){
@@ -30,8 +34,10 @@ self.addEventListener('fetch', function(e){
   e.respondWith(
     fetch(e.request)
       .then(function(n){
-        const cl = n.clone();
-        caches.open(CACHE).then(function(c){ c.put(e.request, cl) });
+        if(n.ok){
+          const cl = n.clone();
+          caches.open(CACHE).then(function(c){ c.put(e.request, cl) });
+        }
         return n;
       })
       .catch(function(){ return caches.match(e.request, { ignoreSearch: true }) })

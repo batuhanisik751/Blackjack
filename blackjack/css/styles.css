@@ -3,7 +3,7 @@ body{margin:0;background:#171008;display:flex;justify-content:center;align-items
 #bjApp *,#bjApp *::before,#bjApp *::after{box-sizing:border-box}
 .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 .topbar{display:flex;align-items:center;justify-content:space-between;padding:12px 16px 6px;gap:8px}
-.brand{font:800 19px var(--serif);letter-spacing:.18em;text-transform:uppercase;background:linear-gradient(180deg,#f8e7ad 20%,#c89b28 90%);-webkit-background-clip:text;background-clip:text;color:transparent}
+.brand{font:800 19px var(--serif);letter-spacing:.18em;text-transform:uppercase;background:linear-gradient(180deg,#f8e7ad 20%,#c89b28 90%);-webkit-background-clip:text;background-clip:text;color:transparent;text-decoration:none}
 .topbtns{display:flex;gap:7px}
 .mode-badge{background:linear-gradient(180deg,#f3cf6f,#c99e29);color:#3a2a05;border-radius:999px;padding:3px 10px;font:700 10.5px var(--sans);letter-spacing:.08em;text-transform:uppercase;white-space:nowrap}
 .mode-badge:empty{display:none}
