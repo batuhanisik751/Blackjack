@@ -1,6 +1,6 @@
 'use strict';
 
-const CACHE = 'royal-casino-v3';
+const CACHE = 'royal-casino-v4';
 const ASSETS = [
   '.', 'index.html', 'manifest.json', 'icon.svg',
   'blackjack/', 'blackjack/index.html', 'blackjack/css/styles.css',
@@ -10,7 +10,10 @@ const ASSETS = [
   'blackjack/js/achieve.js', 'blackjack/js/trainer.js', 'blackjack/js/sim.js', 'blackjack/js/fair.js',
   'blackjack/js/run.js', 'blackjack/js/main.js',
   'pool/', 'pool/index.html', 'pool/css/pool.css',
-  'pool/js/wallet.js', 'pool/js/physics.js', 'pool/js/ai.js', 'pool/js/game.js'
+  'pool/js/wallet.js', 'pool/js/physics.js', 'pool/js/ai.js', 'pool/js/game.js',
+  'poker/', 'poker/index.html', 'poker/css/poker.css',
+  'poker/js/wallet.js', 'poker/js/cards.js', 'poker/js/eval.js', 'poker/js/engine.js',
+  'poker/js/ai.js', 'poker/js/game.js'
 ];
 
 self.addEventListener('install', function(e){

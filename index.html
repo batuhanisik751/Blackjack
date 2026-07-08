@@ -23,6 +23,9 @@ body{margin:0;min-height:100vh;background:radial-gradient(120% 90% at 50% -10%,#
 .art{height:170px;position:relative;display:flex;align-items:center;justify-content:center}
 .art.bj{background:radial-gradient(130% 110% at 50% 0%,#187c4b 0%,#0a4126 100%)}
 .art.pl{background:radial-gradient(130% 110% at 50% 0%,#1d5f8a 0%,#0c2f47 100%)}
+.art.pk{background:radial-gradient(130% 110% at 50% 0%,#7c2439 0%,#3d1020 100%)}
+.art.pk .cardart+.cardart{color:#1d2132}
+.chipart{width:34px;height:34px;border-radius:50%;background:repeating-conic-gradient(#6b3fa0 0 30deg,#f2ead8 30deg 60deg);box-shadow:0 6px 14px rgba(0,0,0,.5);margin-left:-12px;transform:translateY(20px);z-index:2}
 .art::after{content:'';position:absolute;inset:10px;border-radius:12px;border:1.5px solid rgba(212,175,55,.35);pointer-events:none}
 .cardart{width:56px;height:78px;background:linear-gradient(140deg,#fffdf6,#f0ecd9);border-radius:7px;display:flex;align-items:center;justify-content:center;font:700 34px var(--serif);color:#1d2132;box-shadow:0 8px 18px rgba(0,0,0,.45);transform:rotate(-8deg)}
 .cardart+.cardart{margin-left:-22px;transform:rotate(9deg);color:#c0182f;z-index:1}
@@ -61,6 +64,14 @@ body{margin:0;min-height:100vh;background:radial-gradient(120% 90% at 50% -10%,#
       <h2>Royal Eight-Ball</h2>
       <p>Full-physics 8-ball pool against the house shark. Pick your stake and your opponent — tougher tables pay better.</p>
       <span class="tag">Rack 'em up</span>
+    </div>
+  </a>
+  <a class="game" href="poker/">
+    <div class="art pk"><div class="cardart">A♥</div><div class="cardart">A♠</div><div class="chipart"></div></div>
+    <div class="meta">
+      <h2>Royal Hold'em</h2>
+      <p>No-limit Texas Hold'em against three regulars with very different games. Blinds, bluffs, side pots — buy in and outplay them.</p>
+      <span class="tag">Take a seat</span>
     </div>
   </a>
 </div>

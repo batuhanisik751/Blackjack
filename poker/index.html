@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Royal Hold'em</title>
+<meta name="theme-color" content="#160f1c">
+<link rel="manifest" href="../manifest.json">
+<link rel="icon" href="../icon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="css/poker.css">
+</head>
+<body>
+<div id="pkApp">
+  <header class="topbar">
+    <a class="brand" href="../" title="Back to the casino lobby">♠ Royal Hold'em</a>
+    <div class="topr">
+      <label class="tog"><input type="checkbox" id="chkOdds"> odds</label>
+      <label class="tog"><input type="checkbox" id="chkAuto" checked> auto-deal</label>
+      <div class="wal"><span class="wlab">Wallet</span><span id="bankAmt">$1,000</span></div>
+      <button class="tbtn" id="btnSound">Sound on</button>
+      <button class="tbtn" id="btnLeave">Cash out</button>
+    </div>
+  </header>
+  <div class="stage">
+    <div class="ptable">
+      <div class="felt-ring"></div>
+      <div class="seat s2" id="seat2">
+        <div class="pinfo"><span class="pname" id="name2">Loose Lou</span><span class="pstack" id="stack2">$0</span></div>
+        <div class="hole" id="hole2"></div>
+      </div>
+      <div class="seat s1" id="seat1">
+        <div class="pinfo"><span class="pname" id="name1">Tight Tanya</span><span class="pstack" id="stack1">$0</span></div>
+        <div class="hole" id="hole1"></div>
+      </div>
+      <div class="seat s3" id="seat3">
+        <div class="pinfo"><span class="pname" id="name3">River Ricky</span><span class="pstack" id="stack3">$0</span></div>
+        <div class="hole" id="hole3"></div>
+      </div>
+      <div class="mid">
+        <div class="pot" id="potAmt"></div>
+        <div class="boardrow" id="board"></div>
+      </div>
+      <div class="betspot b0" id="bet0"></div>
+      <div class="betspot b1" id="bet1"></div>
+      <div class="betspot b2" id="bet2"></div>
+      <div class="betspot b3" id="bet3"></div>
+      <div class="dealer-btn d0" id="dealerBtn">D</div>
+      <div class="seat s0" id="seat0">
+        <div class="hole you" id="hole0"></div>
+        <div class="pinfo"><span class="pname">You</span><span class="pstack" id="stack0">$0</span></div>
+      </div>
+      <div class="pk-banner" id="banner"></div>
+    </div>
+    <div class="side">
+      <div class="msgline" id="msgEl">Welcome to the card room</div>
+      <div class="lgwrap" id="logEl"></div>
+    </div>
+  </div>
+  <div class="actbar" id="actBar">
+    <div class="handinfo"><span id="handName"></span><span id="oddsEl"></span></div>
+    <div class="actrow">
+      <button class="abtn fold" id="btnFold">Fold</button>
+      <button class="abtn check" id="btnCheck">Check</button>
+      <div class="raisewrap" id="raiseWrap">
+        <div class="pillrow" id="presetRow"></div>
+        <input type="range" id="raiseSlider">
+        <span class="ramt" id="raiseAmt"></span>
+        <button class="abtn raise" id="btnRaise">Raise</button>
+      </div>
+    </div>
+    <div class="keys">F fold · C check/call · R raise · A all-in</div>
+  </div>
+  <div class="overlay" id="ovTable">
+    <div class="mpanel">
+      <h3 id="tTitle">Royal Hold'em</h3>
+      <div id="tBody"></div>
+      <div class="prow" id="tRow"></div>
+    </div>
+  </div>
+</div>
+<script src="js/wallet.js"></script>
+<script src="js/cards.js"></script>
+<script src="js/eval.js"></script>
+<script src="js/engine.js"></script>
+<script src="js/ai.js"></script>
+<script src="js/game.js"></script>
+</body>
+</html>

@@ -1,10 +1,10 @@
 # Royal Casino
 
-Two full casino games in plain HTML/CSS/JavaScript — no dependencies, no build step, no server required — sharing **one bankroll**. Win money at the blackjack table and bet it on pool, or hustle the pool shark to bankroll your card counting.
+Three full casino games in plain HTML/CSS/JavaScript — no dependencies, no build step, no server required — sharing **one bankroll**. Win at blackjack, bet it on pool, take the lot to the poker table.
 
 ## Play
 
-Open `index.html` for the casino lobby and pick a table, or jump straight into `blackjack/` or `pool/`. Installable as an app (PWA, works offline).
+Open `index.html` for the casino lobby and pick a table, or jump straight into `blackjack/`, `pool/` or `poker/`. Installable as an app (PWA, works offline).
 
 ## ♠ Royal Blackjack
 
@@ -52,6 +52,16 @@ Full-physics 8-ball pool against the house, with your shared wallet on the line.
 - **Betting**: stake $25–$500 a rack; winner takes the pot
 - Aim with the mouse, hold to charge, release to shoot — with aim guide, ghost ball, target/deflection lines and a charging cue stick
 
+## ♥ Royal Hold'em
+
+No-limit Texas Hold'em at a four-seat table against three regulars who play nothing alike.
+
+- **Real NLHE**: blinds, min-raise rules, under-raise all-ins, side pots (folded chips included), split pots, showdown ordering — the pot engine and 7-card evaluator are unit-tested, and the whole table is validated by a 250-hand headless simulation with zero money drift
+- **The opponents**: 🦊 Tight Tanya (premium hands, punishes loose calls), 🐻 Loose Lou (never met a flop he didn't like), 🦈 River Ricky (will bluff fifth street with air) — driven by Monte-Carlo equity, pot odds, and personality profiles
+- **Betting**: three stake tiers ($1/$2 to $25/$50), buy in 40–100 big blinds from the shared wallet, raise slider with min/⅓-pot/½-pot/pot/all-in presets
+- **Table feel**: dealing and flip animations, dealer button that travels, turn glow, winning-hand glow with the hand named, action log, live "your hand" readout, optional win-odds percentage, per-hand provably-fair deck commit
+- Keyboard: `F` fold · `C` check/call · `R` raise · `A` all-in
+
 ## One wallet
 
 Both games read and write the same persistent wallet (effective-balance convention: money in flight is refunded if you leave mid-hand or mid-rack). Pool winnings appear instantly at the blackjack table and vice versa. Best enjoyed one table at a time — simultaneous tabs sync on a best-effort basis.
@@ -69,6 +79,15 @@ pool/
   js/physics.js        ball/cushion/pocket simulation
   js/ai.js             shot planning and difficulty tiers
   js/game.js           8-ball rules, rendering, input, betting
+poker/
+  index.html           four-seat table, action bar, overlays
+  css/poker.css        styling
+  js/eval.js           5/7-card hand evaluator (pure, tested)
+  js/engine.js         side-pot layering and distribution (pure, tested)
+  js/ai.js             Monte-Carlo equity + personality decisions (tested)
+  js/cards.js          deck + card rendering
+  js/game.js           NLHE flow, betting rounds, UI, wallet
+  test/                Node test suites incl. 250-hand integration run
 ```
 
 ### Blackjack structure
