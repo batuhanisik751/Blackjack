@@ -1,10 +1,10 @@
 # Royal Casino
 
-Three full casino games in plain HTML/CSS/JavaScript — no dependencies, no build step, no server required — sharing **one bankroll**. Win at blackjack, bet it on pool, take the lot to the poker table.
+Four full casino games in plain HTML/CSS/JavaScript — no dependencies, no build step, no server required — sharing **one bankroll**. Win at blackjack, bet it on pool, take the lot to the poker table, or feed it to the loosest slot machine in town.
 
 ## Play
 
-Open `index.html` for the casino lobby and pick a table, or jump straight into `blackjack/`, `pool/` or `poker/`. Installable as an app (PWA, works offline).
+Open `index.html` for the casino lobby and pick a table, or jump straight into `blackjack/`, `pool/`, `poker/` or `slots/`. Installable as an app (PWA, works offline).
 
 ## ♠ Royal Blackjack
 
@@ -62,6 +62,15 @@ No-limit Texas Hold'em at a four-seat table against three regulars who play noth
 - **Table feel**: dealing and flip animations, dealer button that travels, turn glow, winning-hand glow with the hand named, action log, live "your hand" readout, optional win-odds percentage, per-hand provably-fair deck commit
 - Keyboard: `F` fold · `C` check/call · `R` raise · `A` all-in
 
+## 🎰 Royal Spins
+
+A 5×3, 10-line video slot tuned honest and loose.
+
+- **~97% RTP, provable**: the reel strips (exact symbol counts per reel) are published in the paytable, the tuning simulation ships in `slots/test/`, and every session's spins derive from a hash-committed seed you can reveal and verify
+- **The math**: wilds on reels 2–4, scatter stars paying up to 20× total bet, 10 free spins at ×2 with retriggers, top line pay 500× line bet — hit frequency ~13.5%, free spins about 1 in 26
+- **The show**: blur-spin reels with staggered bounce stops, scatter anticipation slow-downs with golden glow, animated payline traces, rolling win count-ups, coin showers, BIG WIN / MEGA WIN celebrations
+- Bet $5–$250 a spin from the shared wallet, turbo mode, autoplay (10/25/50, stops on big wins), full session stats with live RTP
+
 ## One wallet
 
 Both games read and write the same persistent wallet (effective-balance convention: money in flight is refunded if you leave mid-hand or mid-rack). Pool winnings appear instantly at the blackjack table and vice versa. Best enjoyed one table at a time — simultaneous tabs sync on a best-effort basis.
@@ -88,6 +97,12 @@ poker/
   js/cards.js          deck + card rendering
   js/game.js           NLHE flow, betting rounds, UI, wallet
   test/                Node test suites incl. 250-hand integration run
+slots/
+  index.html           cabinet, reels, overlays
+  css/slots.css        styling
+  js/engine.js         weighted reels + line evaluation (pure, RTP-simulated)
+  js/game.js           spin flow, animations, autoplay, fairness
+  test/                paytable tests, 400k-spin RTP sim, headless flow run
 ```
 
 ### Blackjack structure

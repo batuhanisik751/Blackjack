@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Royal Spins</title>
+<meta name="theme-color" content="#120b26">
+<link rel="manifest" href="../manifest.json">
+<link rel="icon" href="../icon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="css/slots.css">
+</head>
+<body>
+<div id="slApp">
+  <header class="topbar">
+    <a class="brand" href="../" title="Back to the casino lobby">♠ Royal Spins</a>
+    <div class="topr">
+      <span class="rtpbadge" title="Published reel strips — see paytable">97% RTP · certified loose</span>
+      <div class="wal"><span class="wlab">Wallet</span><span id="bankAmt">$1,000</span></div>
+      <button class="tbtn" id="btnPays">Paytable</button>
+      <button class="tbtn" id="btnSound">Sound on</button>
+    </div>
+  </header>
+  <div class="cabinet" id="cabinet">
+    <div class="marquee"><span>R</span><span>O</span><span>Y</span><span>A</span><span>L</span><span class="gap"></span><span>S</span><span>P</span><span>I</span><span>N</span><span>S</span></div>
+    <div class="fsbar" id="fsBar"></div>
+    <div class="reelframe">
+      <div class="reels" id="reels"></div>
+      <svg class="lineovl" id="lineOvl" viewBox="0 0 500 252" preserveAspectRatio="none"></svg>
+      <canvas class="coinfx" id="coinFx"></canvas>
+      <div class="sl-banner" id="banner"></div>
+    </div>
+    <div class="inforow">
+      <div class="meter"><span class="mlab">Total bet</span><span class="mval" id="betVal">$10</span></div>
+      <div class="winmsg" id="winMsg">Place your bet and spin</div>
+      <div class="meter"><span class="mlab">Win</span><span class="mval win" id="winVal">—</span></div>
+    </div>
+    <div class="controls">
+      <div class="betrow" id="betRow"></div>
+      <button class="spinbtn" id="btnSpin"><span id="spinLbl">SPIN</span></button>
+      <div class="sideopts">
+        <button class="tbtn opt" id="btnTurbo">Turbo off</button>
+        <button class="tbtn opt" id="btnAuto">Auto</button>
+      </div>
+    </div>
+  </div>
+  <p class="hint">Space to spin · wins pay left to right on 10 lines · 3+ ⭐ anywhere = 10 free spins at ×2</p>
+  <div class="overlay" id="ovPays">
+    <div class="mpanel">
+      <h3>Paytable &amp; fairness</h3>
+      <div id="paysBody"></div>
+      <div class="prow"><button class="gbtn" id="btnPaysClose">Close</button></div>
+    </div>
+  </div>
+  <div class="overlay" id="ovCredit">
+    <div class="mpanel">
+      <h3>Out of money</h3>
+      <p class="tlede">The machine ate it all. The house can float you $1,000 — or win it back at another table.</p>
+      <div class="prow"><a class="tbtn" href="../">Lobby</a><button class="gbtn" id="btnCredit">Take $1,000 credit</button></div>
+    </div>
+  </div>
+</div>
+<script src="js/wallet.js"></script>
+<script src="js/engine.js"></script>
+<script src="js/game.js"></script>
+</body>
+</html>
